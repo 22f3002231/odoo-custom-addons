@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>TradeIndia Integration</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .oe_container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .oe_row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        .oe_span6 {
+            flex: 0 0 48%;
+            margin: 1%;
+        }
+        .oe_span12 {
+            flex: 0 0 96%;
+            margin: 1%;
+        }
+        .oe_slogan {
+            text-align: center;
+            font-size: 2em;
+            margin: 30px 0;
+        }
+        .oe_mt32 {
+            margin-top: 32px;
+        }
+        .oe_dark {
+            background-color: #f5f5f5;
+            padding: 40px 0;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        ul li {
+            padding: 8px 0;
+            font-size: 16px;
+        }
+        ul li:before {
+            content: "✓ ";
+            color: #875A7B;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        h2 {
+            color: #875A7B;
+            border-bottom: 2px solid #875A7B;
+            padding-bottom: 10px;
+        }
+        h4 {
+            color: #875A7B;
+            margin-top: 20px;
+        }
+        .alert {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            background-color: #d9edf7;
+            border: 1px solid #bce8f1;
+        }
+    </style>
+</head>
+<body>
+    <section class="oe_container">
+        <div class="oe_row oe_spaced">
+            <h2 class="oe_slogan" style="color:#875A7B;">TradeIndia Integration</h2>
+            <h3 class="oe_slogan">Automatically Fetch TradeIndia Leads into Odoo CRM</h3>
+            <p class="oe_mt32" style="text-align: center; font-size: 18px;">
+                This module provides a complete integration with the TradeIndia API. It automates the process of fetching new business inquiries and creating them as qualified leads in your Odoo CRM, saving you time and ensuring no lead is missed.
+            </p>
+        </div>
+    </section>
+
+    <section class="oe_container oe_dark">
+        <div class="oe_row oe_spaced">
+            <h2 class="oe_slogan" style="color:#875A7B;">Key Features</h2>
+            <div class="oe_span6">
+                <ul style="font-size: 16px;">
+                    <li>Automated lead fetching every 5 minutes</li>
+                    <li>Manual fetch option for specific date ranges</li>
+                    <li>Detailed mapping of all key lead data</li>
+                    <li>Company, Address, and Contact Info capture</li>
+                </ul>
+            </div>
+            <div class="oe_span6">
+                <ul style="font-size: 16px;">
+                    <li>Prevents duplicate leads using unique ID</li>
+                    <li>Creates entries as "Leads" for qualification</li>
+                    <li>Built-in API Log Viewer for monitoring</li>
+                    <li>Smart lead reactivation feature</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="oe_container">
+        <div class="oe_row oe_spaced">
+            <h2 class="oe_slogan" style="color:#875A7B;">How to Use</h2>
+            <div class="oe_span12">
+                <h4>Configuration</h4>
+                <p style="font-size: 16px;">
+                    1. Go to the <strong>TradeIndia → Configuration</strong> menu.
+                    <br/>
+                    2. Enter your TradeIndia API credentials (User ID, Profile ID, API Key) and save.
+                    <br/>
+                    3. Use the "Test Connection" button to ensure your credentials are valid.
+                </p>
+            </div>
+            <div class="oe_span12">
+                <h4>Usage</h4>
+                <p style="font-size: 16px;">
+                    The system will automatically fetch new leads every 5 minutes. To fetch leads from a past period, use the <strong>TradeIndia → Fetch Leads</strong> menu. To see a history of all API calls, visit the <strong>TradeIndia → API Logs</strong> menu.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="oe_container oe_dark">
+        <div class="oe_row oe_spaced">
+            <h2 class="oe_slogan" style="color:#875A7B;">Benefits</h2>
+            <div class="oe_span12" style="text-align: center;">
+                <ul style="font-size: 18px; display: inline-block; text-align: left;">
+                    <li>Never miss a business inquiry from TradeIndia</li>
+                    <li>Save time with automated lead capture</li>
+                    <li>Improve response time to potential customers</li>
+                    <li>Streamline your sales qualification process</li>
+                    <li>Track all API activity with detailed logs</li>
+                    <li>Prevent duplicate lead entries automatically</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="oe_container">
+        <div class="oe_row oe_spaced">
+            <h2 class="oe_slogan" style="color:#875A7B;">Technical Details</h2>
+            <div class="oe_span12">
+                <div class="alert">
+                    <strong>API Integration:</strong> Uses TradeIndia's official inquiry API endpoint
+                    <br/>
+                    <strong>Scheduling:</strong> Automated cron job runs every 5 minutes
+                    <br/>
+                    <strong>Compatibility:</strong> Designed for Odoo 19 Community Edition
+                    <br/>
+                    <strong>Security:</strong> API keys are stored encrypted in the database
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="oe_container oe_dark">
+        <div class="oe_row oe_spaced">
+            <h2 class="oe_slogan" style="color:#875A7B;">Support</h2>
+            <p style="text-align: center; font-size: 16px;">
+                For questions, issues, or feature requests, please contact the module author.
+                <br/>
+                <strong>Version:</strong> 19.0.1.0.0
+                <br/>
+                <strong>License:</strong> GNU General Public License v3.0
+            </p>
+        </div>
+    </section>
+</body>
+</html>

@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_tradeindia_settings_manager,tradeindia.settings.manager,model_tradeindia_settings,base.group_system,1,1,1,1
+access_tradeindia_fetch_wizard,tradeindia.fetch.wizard,model_tradeindia_fetch_leads_wizard,base.group_system,1,1,1,1
+access_tradeindia_api_log,tradeindia.api.log,model_tradeindia_api_log,base.group_system,1,0,1,0

@@ -1,0 +1,54 @@
+<odoo>
+    <record id="tradeindia_api_log_view_tree" model="ir.ui.view">
+        <field name="name">tradeindia.api.log.list</field>
+        <field name="model">tradeindia.api.log</field>
+        <field name="arch" type="xml">
+            <list string="API Call Logs" create="false" edit="false" delete="false">
+                <field name="request_time" string="Time"/>
+                <field name="status" decoration-success="status == 'success'" decoration-danger="status == 'failure'"/>
+                <field name="is_manual" string="Manual?"/>
+                <field name="leads_fetched"/>
+                <field name="leads_created"/>
+                <field name="response_message" string="Message"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="tradeindia_api_log_view_form" model="ir.ui.view">
+        <field name="name">tradeindia.api.log.form</field>
+        <field name="model">tradeindia.api.log</field>
+        <field name="arch" type="xml">
+            <form string="API Call Log" create="false" edit="false" delete="false">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="request_time"/>
+                            <field name="status"/>
+                            <field name="is_manual"/>
+                        </group>
+                        <group>
+                            <field name="leads_fetched"/>
+                            <field name="leads_created"/>
+                        </group>
+                    </group>
+                    <group string="API Response Message">
+                        <field name="response_message" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="tradeindia_api_log_action" model="ir.actions.act_window">
+        <field name="name">API Logs</field>
+        <field name="res_model">tradeindia.api.log</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem
+        id="tradeindia_api_log_menu"
+        name="API Logs"
+        parent="tradeindia_menu_root"
+        action="tradeindia_api_log_action"
+        sequence="30"/>
+</odoo>

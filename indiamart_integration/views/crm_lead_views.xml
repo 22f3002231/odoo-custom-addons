@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="crm_lead_view_form_inherit_indiamart" model="ir.ui.view">
+        <field name="name">crm.lead.form.inherit.indiamart</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+            <field name="partner_name" position="after">
+                <field name="indiamart_query_type"/>
+            </field>
+        </field>
+    </record>
+</odoo>

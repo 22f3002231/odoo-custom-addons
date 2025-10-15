@@ -1,0 +1,49 @@
+<odoo>
+    <record id="tradeindia_settings_view_form" model="ir.ui.view">
+        <field name="name">tradeindia.settings.form</field>
+        <field name="model">tradeindia.settings</field>
+        <field name="arch" type="xml">
+            <form string="TradeIndia Settings" create="false" edit="true" delete="false">
+                <header>
+                    <button name="action_test_connection" 
+                            string="Test Connection" 
+                            type="object" 
+                            class="oe_highlight"/>
+                </header>
+                <sheet>
+                    <h1><field name="name"/></h1>
+                    <group>
+                        <group>
+                            <field name="userid" placeholder="7083249"/>
+                            <field name="profile_id" placeholder="9850523"/>
+                            <field name="api_key" password="True" placeholder="cd1d7124851c345a5f2fa29dc9c20506"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-info" role="alert">
+                        <strong>Note:</strong> Get your API credentials from TradeIndia Seller Panel.
+                        <br/>The system will automatically fetch leads every 5 minutes.
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="tradeindia_settings_action" model="ir.actions.act_window">
+        <field name="name">Configuration</field>
+        <field name="res_model">tradeindia.settings</field>
+        <field name="view_mode">form</field>
+        <field name="res_id" eval="ref('tradeindia_integration.tradeindia_settings_default')"/>
+    </record>
+
+    <menuitem
+        id="tradeindia_menu_root"
+        name="TradeIndia"
+        sequence="51"/>
+
+    <menuitem
+        id="tradeindia_settings_menu"
+        name="Configuration"
+        parent="tradeindia_menu_root"
+        action="tradeindia_settings_action"
+        sequence="10"/>
+</odoo>

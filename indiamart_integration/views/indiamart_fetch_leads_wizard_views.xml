@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="indiamart_fetch_leads_wizard_view_form" model="ir.ui.view">
+        <field name="name">indiamart.fetch.leads.wizard.form</field>
+        <field name="model">indiamart.fetch.leads.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Fetch IndiaMART Leads">
+                <p>Select a date range to fetch leads from IndiaMART. The maximum allowed range is 7 days.</p>
+                <group>
+                    <field name="start_time"/>
+                    <field name="end_time"/>
+                </group>
+                <footer>
+                    <button name="action_fetch_leads" string="Fetch Leads" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="indiamart_fetch_leads_action" model="ir.actions.act_window">
+        <field name="name">Fetch Leads</field>
+        <field name="res_model">indiamart.fetch.leads.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+    <menuitem
+        id="indiamart_fetch_leads_menu"
+        name="Fetch Leads"
+        parent="indiamart_menu_root"
+        action="indiamart_fetch_leads_action"
+        sequence="20"/>
+</odoo>

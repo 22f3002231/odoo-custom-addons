@@ -1,0 +1,38 @@
+<odoo>
+    <record id="tradeindia_fetch_leads_wizard_view_form" model="ir.ui.view">
+        <field name="name">tradeindia.fetch.leads.wizard.form</field>
+        <field name="model">tradeindia.fetch.leads.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Fetch TradeIndia Leads">
+                <p>Select a date range to fetch leads from TradeIndia. The maximum allowed range is 30 days.</p>
+                <group>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                </group>
+                <footer>
+                    <button name="action_fetch_leads" 
+                            string="Fetch Leads" 
+                            type="object" 
+                            class="btn-primary"/>
+                    <button string="Cancel" 
+                            class="btn-secondary" 
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="tradeindia_fetch_leads_action" model="ir.actions.act_window">
+        <field name="name">Fetch Leads</field>
+        <field name="res_model">tradeindia.fetch.leads.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem
+        id="tradeindia_fetch_leads_menu"
+        name="Fetch Leads"
+        parent="tradeindia_menu_root"
+        action="tradeindia_fetch_leads_action"
+        sequence="20"/>
+</odoo>

@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_indiamart_settings_manager,indiamart.settings.manager,model_indiamart_settings,base.group_system,1,1,1,1
+access_indiamart_fetch_wizard,indiamart.fetch.wizard,model_indiamart_fetch_leads_wizard,base.group_system,1,1,1,1
+access_indiamart_api_log,indiamart.api.log,model_indiamart_api_log,base.group_system,1,0,1,0
