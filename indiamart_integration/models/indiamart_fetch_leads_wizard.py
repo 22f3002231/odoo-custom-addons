@@ -33,7 +33,7 @@ class IndiaMARTFetchLeadsWizard(models.TransientModel):
                 raise ValidationError("Error: The date range cannot be more than 7 days.")
 
     def action_fetch_leads(self):
-        '''Manual fetch - NO duplicate check'''
+        '''Manual fetch with date range - HAS duplicate check to avoid backfill duplicates'''
         log_vals = {'is_manual': True}
         errors = []
         
@@ -76,7 +76,15 @@ class IndiaMARTFetchLeadsWizard(models.TransientModel):
 
             new_leads_count = 0
             skipped_no_id = 0
+            skipped_duplicates = 0
+            failed_count = 0
             Lead = self.env['crm.lead']
+            
+            # Get or create IndiaMART source
+            indiamart_source = self.env['utm.source'].search([('name', '=', 'IndiaMART')], limit=1)
+            if not indiamart_source:
+                indiamart_source = self.env['utm.source'].create({'name': 'IndiaMART'})
+            indiamart_source_id = indiamart_source.id
             
             for idx, lead in enumerate(leads_data, 1):
                 unique_id = lead.get('UNIQUE_QUERY_ID')
@@ -85,6 +93,13 @@ class IndiaMARTFetchLeadsWizard(models.TransientModel):
                 if not unique_id:
                     skipped_no_id += 1
                     errors.append(f"{sender_name}: Missing ID")
+                    continue
+
+                # Check for duplicates during manual fetch (when backfilling)
+                existing_lead = Lead.search([('indiamart_unique_id', '=', unique_id)], limit=1)
+                if existing_lead:
+                    skipped_duplicates += 1
+                    _logger.info(f"» Duplicate: {sender_name} (ID: {unique_id}) - Already exists as Lead #{existing_lead.id}")
                     continue
 
                 query_type = lead.get('QUERY_TYPE')
@@ -98,7 +113,7 @@ class IndiaMARTFetchLeadsWizard(models.TransientModel):
                     'probability': probability_map.get(query_type, 10),
                     'user_id': False,
                     'team_id': False,
-                    'x_lead_source': 'IndiaMART',
+                    'source_id': indiamart_source_id,
                 }
                 
                 if lead.get('SENDER_COMPANY'):
@@ -159,14 +174,16 @@ class IndiaMARTFetchLeadsWizard(models.TransientModel):
                     
                 except Exception as e:
                     error_msg = str(e)
+                    failed_count += 1
                     _logger.error(f"✗ Failed to create lead {unique_id}: {error_msg}")
                     errors.append(f"{sender_name}: {error_msg[:50]}")
 
             summary = (
                 f"API returned {total_received} leads\n"
                 f"✓ Created: {new_leads_count}\n"
-                f"⊗ Skipped (No ID): {skipped_no_id}\n"
-                f"✗ Failed: {len(errors)}"
+                f"» Skipped (Duplicate): {skipped_duplicates}\n"
+                f"» Skipped (No ID): {skipped_no_id}\n"
+                f"✗ Failed: {failed_count}"
             )
             
             if errors:

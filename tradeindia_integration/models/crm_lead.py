@@ -15,6 +15,3 @@ class CrmLead(models.Model):
         index=True,
         help="Unique inquiry ID from TradeIndia"
     )
-
-    # Add a new field to store the lead source
-    x_lead_source = fields.Char(string="Source", readonly=True, index=True)

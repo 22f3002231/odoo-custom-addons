@@ -34,7 +34,7 @@ class TradeIndiaFetchLeadsWizard(models.TransientModel):
                 raise ValidationError("Date range cannot exceed 1 day due to API limitations.")
 
     def action_fetch_leads(self):
-        '''Manual fetch - NO duplicate check'''
+        '''Manual fetch - WITH duplicate check'''
         log_vals = {'is_manual': True}
         errors = []
         
@@ -70,7 +70,15 @@ class TradeIndiaFetchLeadsWizard(models.TransientModel):
 
             new_leads_count = 0
             skipped_no_id = 0
+            skipped_duplicates = 0
+            failed_count = 0
             Lead = self.env['crm.lead']
+            
+            # Get or create TradeIndia source
+            tradeindia_source = self.env['utm.source'].search([('name', '=', 'TradeIndia')], limit=1)
+            if not tradeindia_source:
+                tradeindia_source = self.env['utm.source'].create({'name': 'TradeIndia'})
+            tradeindia_source_id = tradeindia_source.id
             
             for idx, lead in enumerate(leads_data, 1):
                 unique_id = lead.get('rfi_id')
@@ -79,6 +87,13 @@ class TradeIndiaFetchLeadsWizard(models.TransientModel):
                 if not unique_id:
                     skipped_no_id += 1
                     errors.append(f"{sender_name}: No RFI ID")
+                    continue
+
+                # Check for duplicates during manual fetch (when backfilling)
+                existing_lead = Lead.search([('tradeindia_unique_id', '=', str(unique_id))], limit=1)
+                if existing_lead:
+                    skipped_duplicates += 1
+                    _logger.info(f"» Duplicate: {sender_name} (ID: {unique_id}) - Already exists as Lead #{existing_lead.id}")
                     continue
 
                 product_name = lead.get('product_name') or lead.get('subject', 'Inquiry')
@@ -91,7 +106,7 @@ class TradeIndiaFetchLeadsWizard(models.TransientModel):
                     'probability': 50,
                     'user_id': False,
                     'team_id': False,
-                    'x_lead_source': 'TradeIndia',
+                    'source_id': tradeindia_source_id,  # ADDED: Use source_id field
                 }
                 
                 if lead.get('sender_co'):
@@ -139,14 +154,16 @@ class TradeIndiaFetchLeadsWizard(models.TransientModel):
                     new_leads_count += 1
                     _logger.info(f"✓ Created lead {idx}/{total_received}: {sender_name} (ID: {new_lead.id})")
                 except Exception as e:
+                    failed_count += 1
                     errors.append(f"{sender_name}: {str(e)[:50]}")
                     _logger.error(f"✗ Failed: {str(e)}")
 
             summary = (
                 f"API returned {total_received} leads\n"
                 f"✓ Created: {new_leads_count}\n"
-                f"⊗ Skipped (No ID): {skipped_no_id}\n"
-                f"✗ Failed: {len(errors)}"
+                f"» Skipped (Duplicate): {skipped_duplicates}\n"
+                f"» Skipped (No ID): {skipped_no_id}\n"
+                f"✗ Failed: {failed_count}"
             )
             
             if errors and len(errors) <= 5:

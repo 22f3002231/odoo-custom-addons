@@ -90,10 +90,16 @@ class TradeIndiaSettings(models.Model):
 
             new_leads_count = 0
             skipped_no_id = 0
-            existing_lead_count = 0
+            skipped_duplicates = 0
             
             if leads_data:
                 Lead = self.env['crm.lead']
+                
+                # Get or create TradeIndia source
+                tradeindia_source = self.env['utm.source'].search([('name', '=', 'TradeIndia')], limit=1)
+                if not tradeindia_source:
+                    tradeindia_source = self.env['utm.source'].create({'name': 'TradeIndia'})
+                tradeindia_source_id = tradeindia_source.id
                 
                 for lead in leads_data:
                     unique_id = lead.get('rfi_id')
@@ -101,12 +107,14 @@ class TradeIndiaSettings(models.Model):
                     
                     if not unique_id:
                         skipped_no_id += 1
-                        _logger.warning(f"⊗ Skipped: {sender_name} - No RFI ID")
+                        _logger.warning(f"» Skipped: {sender_name} - No RFI ID")
                         continue
 
+                    # Check for duplicates
                     existing_lead = Lead.search([('tradeindia_unique_id', '=', str(unique_id))], limit=1)
                     if existing_lead:
-                        existing_lead_count += 1
+                        skipped_duplicates += 1
+                        _logger.info(f"» Duplicate: {sender_name} (ID: {unique_id}) - Already exists as Lead #{existing_lead.id}")
                         continue
 
                     product_name = lead.get('product_name') or lead.get('subject', 'Inquiry')
@@ -119,7 +127,7 @@ class TradeIndiaSettings(models.Model):
                         'probability': 50,
                         'user_id': False,
                         'team_id': False,
-                        'x_lead_source': 'TradeIndia', 
+                        'source_id': tradeindia_source_id,  # ADDED: Use source_id field
                     }
                     
                     if lead.get('sender_co'):
@@ -169,7 +177,7 @@ class TradeIndiaSettings(models.Model):
                     except Exception as e:
                         _logger.error(f"✗ Failed to create lead for {sender_name}: {str(e)}")
             
-            message = f"Created {new_leads_count} new leads (API returned {total_received}, {existing_lead_count} duplicates, {skipped_no_id} without ID)"
+            message = f"Created {new_leads_count} new leads (API returned {total_received}, {skipped_duplicates} duplicates, {skipped_no_id} without ID)"
             log_vals.update({
                 'status': 'success',
                 'leads_created': new_leads_count,

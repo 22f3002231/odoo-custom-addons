@@ -50,7 +50,7 @@ class IndiaMARTSettings(models.Model):
 
     @api.model
     def _run_scheduled_fetch(self):
-        '''Cron job - runs every 5 minutes to fetch NEW leads only'''
+        '''Cron job - runs every 5 minutes using API's built-in last-24h logic'''
         _logger.info("=== IndiaMART Scheduled Fetch Started ===")
         log_vals = {'is_manual': False}
         
@@ -59,22 +59,15 @@ class IndiaMARTSettings(models.Model):
             if not settings or not settings.api_key:
                 raise Exception("API Key not configured")
 
-            import pytz
-            ist_tz = pytz.timezone('Asia/Kolkata')
+            _logger.info("Fetching NEW leads (API will return leads since last API call)")
             
-            end_time_ist = datetime.now(ist_tz)
-            start_time_ist = end_time_ist - timedelta(minutes=10)
-            
-            start_str = start_time_ist.strftime('%d-%m-%Y%H:%M:%S')
-            end_str = end_time_ist.strftime('%d-%m-%Y%H:%M:%S')
-            
-            _logger.info(f"Fetching NEW leads (IST): {start_str} to {end_str}")
-            
+            # Use the simple approach: API without start_time and end_time
+            # This automatically returns leads from the last 24 hours,
+            # or from last API call if called within 24 hours
             api_url = "https://mapi.indiamart.com/wservce/crm/crmListing/v2/"
             params = {
-                'glusr_crm_key': settings.api_key,
-                'start_time': start_str,
-                'end_time': end_str
+                'glusr_crm_key': settings.api_key
+                # No start_time or end_time needed!
             }
 
             response = requests.get(api_url, params=params, timeout=30)
@@ -91,18 +84,23 @@ class IndiaMARTSettings(models.Model):
             _logger.info(f"API returned {total_received} leads")
 
             new_leads_count = 0
-            skipped_no_id = 0
+            failed_count = 0
             
             if leads_data:
                 Lead = self.env['crm.lead']
+                
+                # Get or create IndiaMART source
+                indiamart_source = self.env['utm.source'].search([('name', '=', 'IndiaMART')], limit=1)
+                if not indiamart_source:
+                    indiamart_source = self.env['utm.source'].create({'name': 'IndiaMART'})
+                indiamart_source_id = indiamart_source.id
                 
                 for lead in leads_data:
                     unique_id = lead.get('UNIQUE_QUERY_ID')
                     sender_name = lead.get('SENDER_NAME', 'Unknown')
                     
                     if not unique_id:
-                        skipped_no_id += 1
-                        _logger.warning(f"⊗ Skipped: {sender_name} - No UNIQUE_QUERY_ID")
+                        _logger.warning(f"» Skipped: {sender_name} - No UNIQUE_QUERY_ID")
                         continue
 
                     query_type = lead.get('QUERY_TYPE')
@@ -116,7 +114,7 @@ class IndiaMARTSettings(models.Model):
                         'probability': probability_map.get(query_type, 10),
                         'user_id': False,
                         'team_id': False,
-                        'x_lead_source': 'IndiaMART',
+                        'source_id': indiamart_source_id,
                     }
                     
                     if lead.get('SENDER_COMPANY'):
@@ -170,9 +168,13 @@ class IndiaMARTSettings(models.Model):
                         new_leads_count += 1
                         _logger.info(f"✓ Created: {sender_name} (Lead ID: {new_lead.id})")
                     except Exception as e:
-                        _logger.error(f"✗ Failed: {str(e)}")
+                        failed_count += 1
+                        _logger.error(f"✗ Failed to create lead {unique_id}: {str(e)}")
             
-            message = f"Created {new_leads_count} new leads (API returned {total_received}, {skipped_no_id} without ID)"
+            message = f"Created {new_leads_count} new leads (API returned {total_received} total)"
+            if failed_count > 0:
+                message += f", {failed_count} failed"
+            
             log_vals.update({
                 'status': 'success',
                 'leads_created': new_leads_count,
